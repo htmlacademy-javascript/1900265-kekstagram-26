@@ -27,6 +27,4 @@ function getRandomArrayId() {
   }
 }
 
-export {getRandomPositiveInteger};
-export {getRandomElement};
-export {getRandomArrayId};
+export {getRandomPositiveInteger, getRandomElement, getRandomArrayId};
