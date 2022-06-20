@@ -95,3 +95,5 @@ function getCommentId() {
 }
 
 getCards();
+
+export {getCards};
