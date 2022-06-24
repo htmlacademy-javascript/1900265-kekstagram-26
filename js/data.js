@@ -68,7 +68,7 @@ function getRandomCard(_, index) {
 }
 
 const MIN_COMMENT_QUANTITY = 1;
-const MAX_COMMENT_QUANTITY = 2;
+const MAX_COMMENT_QUANTITY = 5;
 
 function getComments() {
   return Array.from({length: getRandomPositiveInteger(MIN_COMMENT_QUANTITY, MAX_COMMENT_QUANTITY)}, getRandomComment);
