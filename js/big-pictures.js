@@ -23,14 +23,46 @@
 
 5. Напишите код для закрытия окна по нажатию клавиши Esc и клике по иконке закрытия.
 */
+const MAX_RENDER_COMMENTS = 5;
+const bigPicture = document.querySelector('.big-picture');
+const bigPictureImgElement = document.querySelector('.big-picture__img img');
+const likesCountElement = bigPicture.querySelector('.likes-count');
+const commentsCountElement = bigPicture.querySelector('.comments-count');
+const socialCaptionElement = bigPicture.querySelector('.social__caption');
+const socialCommentCountElement = bigPicture.querySelector('.social__comment-count');
+const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
+const bodyElement = document.querySelector('body');
+
+function renderBigPicture(url, likes, comments, description) {
+  bigPicture.classList.remove('hidden');
+  bigPictureImgElement.src = url;
+  likesCountElement.textContent = likes;
+  commentsCountElement.textContent = comments.length;
+  socialCaptionElement.textContent = description;
+  renderSocialComment(comments);
+  socialCommentCountElement.classList.add('hidden');
+  commentsLoaderElement.classList.add('hidden');
+  bodyElement.classList.add('modal-open');
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      bigPicture.classList.add('hidden');
+      bodyElement.classList.remove('modal-open');
+    }
+  });
+
+  bigPicture.querySelector('.big-picture__cancel').addEventListener('click', () => {
+    bigPicture.classList.add('hidden');
+    bodyElement.classList.remove('modal-open');
+  });
+}
+
+const listSocialComments = document.querySelector('.social__comments');
+const templateSocialComment = document.querySelector('.social__comment');
 
 function renderSocialComment(socialComments) {
-  const listSocialComments = document.querySelector('.social__comments');
-  const templateSocialComment = document.querySelector('.social__comment');
   document.querySelectorAll('.social__comment').forEach((item) => item.remove());
   const listSocialCommentsFragment = document.createDocumentFragment();
-
-  const MAX_RENDER_COMMENTS = 5;
 
   socialComments.slice(0, MAX_RENDER_COMMENTS).forEach(({avatar, name, message}) => {
     const elementSocialComment = templateSocialComment.cloneNode(true);
@@ -40,32 +72,6 @@ function renderSocialComment(socialComments) {
     listSocialCommentsFragment.appendChild(elementSocialComment);
   });
   listSocialComments.appendChild(listSocialCommentsFragment);
-}
-
-function renderBigPicture(url, likes, comments, description) {
-  const bigPicture = document.querySelector('.big-picture');
-  bigPicture.classList.remove('hidden');
-  bigPicture.querySelector('.big-picture__img').querySelector('img').src = url;
-  bigPicture.querySelector('.likes-count').textContent = likes;
-  bigPicture.querySelector('.comments-count').textContent = comments.length;
-  bigPicture.querySelector('.social__caption').textContent = description;
-  renderSocialComment(comments);
-
-  bigPicture.querySelector('.social__comment-count').classList.add('hidden');
-  bigPicture.querySelector('.comments-loader').classList.add('hidden');
-  document.querySelector('body').classList.add('modal-open');
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      bigPicture.classList.add('hidden');
-      document.querySelector('body').classList.remove('modal-open');
-    }
-  });
-
-  bigPicture.querySelector('.big-picture__cancel').addEventListener('click', () => {
-    bigPicture.classList.add('hidden');
-    document.querySelector('body').classList.remove('modal-open');
-  });
 }
 
 export {renderBigPicture};
