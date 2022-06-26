@@ -23,7 +23,6 @@
 
 5. Напишите код для закрытия окна по нажатию клавиши Esc и клике по иконке закрытия.
 */
-const MAX_RENDER_COMMENTS = 5;
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureImgElement = document.querySelector('.big-picture__img img');
 const likesCountElement = bigPicture.querySelector('.likes-count');
@@ -32,6 +31,21 @@ const socialCaptionElement = bigPicture.querySelector('.social__caption');
 const socialCommentCountElement = bigPicture.querySelector('.social__comment-count');
 const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
 const bodyElement = document.querySelector('body');
+const cancelElement = bigPicture.querySelector('.big-picture__cancel');
+
+function keydownEscapeHandler(event) {
+  if (event.key === 'Escape') {
+    bigPicture.classList.add('hidden');
+    bodyElement.classList.remove('modal-open');
+    document.removeEventListener('keydown', keydownEscapeHandler);
+  }
+}
+
+function clickHandler() {
+  bigPicture.classList.add('hidden');
+  bodyElement.classList.remove('modal-open');
+  cancelElement.removeEventListener('click', clickHandler);
+}
 
 function renderBigPicture(url, likes, comments, description) {
   bigPicture.classList.remove('hidden');
@@ -43,20 +57,11 @@ function renderBigPicture(url, likes, comments, description) {
   socialCommentCountElement.classList.add('hidden');
   commentsLoaderElement.classList.add('hidden');
   bodyElement.classList.add('modal-open');
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      bigPicture.classList.add('hidden');
-      bodyElement.classList.remove('modal-open');
-    }
-  });
-
-  bigPicture.querySelector('.big-picture__cancel').addEventListener('click', () => {
-    bigPicture.classList.add('hidden');
-    bodyElement.classList.remove('modal-open');
-  });
+  document.addEventListener('keydown', keydownEscapeHandler);
+  cancelElement.addEventListener('click', clickHandler);
 }
 
+const MAX_RENDER_COMMENTS = 5;
 const listSocialComments = document.querySelector('.social__comments');
 const templateSocialComment = document.querySelector('.social__comment');
 
