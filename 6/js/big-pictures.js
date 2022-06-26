@@ -37,14 +37,14 @@ function keydownEscapeHandler(event) {
   if (event.key === 'Escape') {
     bigPicture.classList.add('hidden');
     bodyElement.classList.remove('modal-open');
-    document.removeEventListener('keydown', keydownEscapeHandler);
+    // document.removeEventListener('keydown', keydownEscapeHandler);
   }
 }
 
 function clickHandler() {
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
-  cancelElement.removeEventListener('click', clickHandler);
+  // cancelElement.removeEventListener('click', clickHandler);
 }
 
 function renderBigPicture(url, likes, comments, description) {
