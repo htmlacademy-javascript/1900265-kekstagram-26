@@ -23,6 +23,8 @@
 
 5. Напишите код для закрытия окна по нажатию клавиши Esc и клике по иконке закрытия.
 */
+import {isEscapeKey} from './utils.js';
+
 const bigPicture = document.querySelector('.big-picture');
 const bigPictureImgElement = document.querySelector('.big-picture__img img');
 const likesCountElement = bigPicture.querySelector('.likes-count');
@@ -33,18 +35,19 @@ const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
 const bodyElement = document.querySelector('body');
 const cancelElement = bigPicture.querySelector('.big-picture__cancel');
 
-function keydownEscapeHandler(event) {
-  if (event.key === 'Escape') {
+function keydownEscapeHandler(evt) {
+  if (isEscapeKey(evt)) {
+    evt.preventDefault();
     bigPicture.classList.add('hidden');
     bodyElement.classList.remove('modal-open');
-    // document.removeEventListener('keydown', keydownEscapeHandler);
+    document.removeEventListener('keydown', keydownEscapeHandler);
   }
 }
 
 function clickHandler() {
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
-  // cancelElement.removeEventListener('click', clickHandler);
+  cancelElement.removeEventListener('click', clickHandler);
 }
 
 function renderBigPicture(url, likes, comments, description) {
