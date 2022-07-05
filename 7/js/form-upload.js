@@ -51,17 +51,19 @@ const validateHashtag = (value) => {
 
 pristine.addValidator(textHashtagsElement, validateHashtag, 'ХэшТэг начинается с # и содержит не более 20 любых букв и цифр. Можно использовать не более 5 неповторяющихся ХэшТэгов.');
 
+const renderModal = (templateModal) => {
+  const elementModal = templateModal.cloneNode(true);
+  elementModal.querySelector('button').addEventListener('click', () => elementModal.remove());
+  uploadTextElement.appendChild(elementModal);
+};
+
 uploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
   const isValid = pristine.validate();
   if (isValid) {
-    const elementSuccess = templateSuccess.cloneNode(true);
-    elementSuccess.querySelector('.success__button').addEventListener('click', () => elementSuccess.remove());
-    uploadTextElement.appendChild(elementSuccess);
+    renderModal(templateSuccess);
   } else {
-    const elementError = templateError.cloneNode(true);
-    elementError.querySelector('.error__button').addEventListener('click', () => elementError.remove());
-    uploadTextElement.appendChild(elementError);
+    renderModal(templateError);
   }
 });
