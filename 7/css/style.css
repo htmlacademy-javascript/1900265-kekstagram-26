@@ -701,11 +701,18 @@ main {
  * Сообщение об ошибке хэштегов и комментария к изображению (Pristine)
  */
 
+ .img-upload__field-wrapper {
+  position: relative;
+ }
+
  .img-upload__error-text {
   position: absolute;
-  left: 30%;
+  z-index: 99;
+  top: 35px;
+  left: 15%;
   max-width: 426px;
-  background-color: rgba(0, 0, 0, 0.6);
+  text-transform: none;
+  font-size: 12px;
  }
 
 
