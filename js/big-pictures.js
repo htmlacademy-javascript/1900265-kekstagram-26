@@ -5,8 +5,8 @@ const bigPictureImgElement = document.querySelector('.big-picture__img img');
 const likesCountElement = bigPicture.querySelector('.likes-count');
 const commentsCountElement = bigPicture.querySelector('.comments-count');
 const socialCaptionElement = bigPicture.querySelector('.social__caption');
-const socialCommentCountElement = bigPicture.querySelector('.social__comment-count');
-const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
+// const socialCommentCountElement = bigPicture.querySelector('.social__comment-count');
+// const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
 const bodyElement = document.querySelector('body');
 const cancelElement = bigPicture.querySelector('.big-picture__cancel');
 
@@ -50,8 +50,8 @@ const renderBigPicture = (url, likes, comments, description) => {
   commentsCountElement.textContent = comments.length;
   socialCaptionElement.textContent = description;
   renderSocialComment(comments);
-  socialCommentCountElement.classList.add('hidden');
-  commentsLoaderElement.classList.add('hidden');
+  // socialCommentCountElement.classList.add('hidden');
+  // commentsLoaderElement.classList.add('hidden');
   bodyElement.classList.add('modal-open');
   document.addEventListener('keydown', keydownEscapeHandler);
   cancelElement.addEventListener('click', clickHandler);
