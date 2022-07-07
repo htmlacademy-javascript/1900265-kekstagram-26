@@ -42,7 +42,7 @@ const getRandomComment = () => ({
 });
 
 const MIN_COMMENT_QUANTITY = 1;
-const MAX_COMMENT_QUANTITY = 5;
+const MAX_COMMENT_QUANTITY = 100;
 const getComments = () => Array.from({length: getRandomPositiveInteger(MIN_COMMENT_QUANTITY, MAX_COMMENT_QUANTITY)}, getRandomComment);
 
 const MIN_LIKE_QUANTITY = 15;

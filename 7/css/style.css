@@ -697,6 +697,17 @@ main {
   border-radius: 5px;
 }
 
+/**
+ * Сообщение об ошибке хэштегов и комментария к изображению (Pristine)
+ */
+
+ .img-upload__error-text {
+  position: absolute;
+  left: 30%;
+  max-width: 426px;
+  background-color: rgba(0, 0, 0, 0.6);
+ }
+
 
 /**
  * Кнопка для отправки изображения
