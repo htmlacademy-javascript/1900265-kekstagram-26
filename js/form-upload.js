@@ -7,6 +7,18 @@ const uploadCancel = uploadForm.querySelector('#upload-cancel');
 const textHashtagsElement = uploadForm.querySelector('.text__hashtags');
 const textDescriptionElement = uploadForm.querySelector('.text__description');
 
+const pristine = new Pristine(uploadForm, {
+  classTo: 'img-upload__field-wrapper',
+  errorTextParent: 'img-upload__field-wrapper',
+  errorTextClass: 'img-upload__error-text',
+});
+
+const resetInputs = () => {
+  textHashtagsElement.value = '';
+  textDescriptionElement.value = '';
+  pristine.reset();
+};
+
 const keydownEscapeHandler = (evt) => {
   if (isEscapeKey(evt)) {
     if (document.activeElement !== textHashtagsElement && document.activeElement !== textDescriptionElement) {
@@ -14,6 +26,7 @@ const keydownEscapeHandler = (evt) => {
       uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
       bodyElement.classList.remove('modal-open');
       document.removeEventListener('keydown', keydownEscapeHandler);
+      resetInputs();
     }
   }
 };
@@ -22,6 +35,7 @@ const clickHandler = () => {
   uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   uploadCancel.removeEventListener('click', clickHandler);
+  resetInputs();
 };
 
 uploadFile.addEventListener('change', () => {
@@ -29,12 +43,6 @@ uploadFile.addEventListener('change', () => {
   uploadCancel.addEventListener('click', clickHandler);
   uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
   bodyElement.classList.add('modal-open');
-});
-
-const pristine = new Pristine(uploadForm, {
-  classTo: 'img-upload__field-wrapper',
-  errorTextParent: 'img-upload__field-wrapper',
-  errorTextClass: 'img-upload__error-text',
 });
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
@@ -47,7 +55,7 @@ const validateHashtag = (value) => {
 };
 
 const noRepeatHashtags = (value) => {
-  const words = value.trim().split(' ');
+  const words = value.trim().toLowerCase().split(' ');
   const isValid = value === '' || new Set(words).size === words.length;
   return isValid;
 };
