@@ -30,7 +30,7 @@
       <section class="img-upload">
         <div class="img-upload__wrapper">
           <h2 class="img-upload__title  visually-hidden">Загрузка фотографии</h2>
-          <form class="img-upload__form" id="upload-select-image" method="post" enctype="multipart/form-data" autocomplete="off">
+          <form class="img-upload__form" id="upload-select-image" action="https://26.javascript.pages.academy/kekstagram" method="post" enctype="multipart/form-data" autocomplete="off">
 
             <!-- Изначальное состояние поля для загрузки изображения -->
             <fieldset class="img-upload__start">
@@ -116,10 +116,10 @@
                 <!-- Добавление хэш-тегов и комментария к изображению -->
                 <fieldset class="img-upload__text text">
                   <div class="img-upload__field-wrapper">
-                    <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег">
+                    <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег" data-pristine-error-text="ХэшТэг начинается с # и содержит не более 20 любых букв и цифр. Можно использовать не более 5 неповторяющихся ХэшТэгов.">
                   </div>
                   <div class="img-upload__field-wrapper">
-                    <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
+                    <textarea class="text__description" name="description" placeholder="Ваш комментарий..." maxlength="140" data-pristine-maxlength-message="Максимальная длина 140 символов."></textarea>
                   </div>
                 </fieldset>
 
@@ -153,7 +153,7 @@
           </div>
 
           <!-- Комментарии к изображению -->
-          <div class="social__comment-count">5 из <span class="comments-count">125</span> комментариев</div>
+          <div class="social__comment-count"><span class="loaded-comments-count">5</span> из <span class="comments-count">125</span> комментариев</div>
           <ul class="social__comments">
             <li class="social__comment">
               <img class="social__picture" src="img/avatar-4.svg" alt="Аватар комментатора фотографии" width="35" height="35">
@@ -232,6 +232,7 @@
   </template>
 
   <!-- Подключение страницы js -->
+  <script src="./pristine/pristine.min.js" type="text/javascript"></script>
   <script src="./js/main.js" type="module"></script>
 
 </body>
