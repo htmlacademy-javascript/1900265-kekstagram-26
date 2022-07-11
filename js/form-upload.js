@@ -6,6 +6,9 @@ const bodyElement = document.querySelector('body');
 const uploadCancel = uploadForm.querySelector('#upload-cancel');
 const textHashtagsElement = uploadForm.querySelector('.text__hashtags');
 const textDescriptionElement = uploadForm.querySelector('.text__description');
+const scaleControlSmallerElement = document.querySelector('.scale__control--smaller');
+const scaleControlBiggerElement = document.querySelector('.scale__control--bigger');
+const scaleControlValueElement = document.querySelector('.scale__control--value');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -13,9 +16,37 @@ const pristine = new Pristine(uploadForm, {
   errorTextClass: 'img-upload__error-text',
 });
 
-const resetInputs = () => {
+const SCALE_MIN = 25;
+const SCALE_MAX = 100;
+const SCALE_STEP = 25;
+const SCALE_DEFAULT = 100;
+
+let scaleValue = SCALE_DEFAULT;
+const showScaleValue = () => {
+  scaleControlValueElement.value = `${scaleValue}%`;
+};
+
+const decreaseScale = () => {
+  if (scaleValue >= SCALE_MIN + SCALE_STEP) {
+    scaleValue -= SCALE_STEP;
+    showScaleValue();
+  }
+};
+
+const increaseScale = () => {
+  if (scaleValue <= SCALE_MAX - SCALE_STEP) {
+    scaleValue += SCALE_STEP;
+    showScaleValue();
+  }
+};
+
+const cleanForm = () => {
+  scaleControlSmallerElement.removeEventListener('click', decreaseScale);
+  scaleControlBiggerElement.removeEventListener('click', increaseScale);
   textHashtagsElement.value = '';
   textDescriptionElement.value = '';
+  scaleValue = SCALE_DEFAULT;
+  showScaleValue();
   pristine.reset();
 };
 
@@ -26,7 +57,7 @@ const keydownEscapeHandler = (evt) => {
       uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
       bodyElement.classList.remove('modal-open');
       document.removeEventListener('keydown', keydownEscapeHandler);
-      resetInputs();
+      cleanForm();
     }
   }
 };
@@ -35,14 +66,17 @@ const clickHandler = () => {
   uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   uploadCancel.removeEventListener('click', clickHandler);
-  resetInputs();
+  cleanForm();
 };
 
 uploadFile.addEventListener('change', () => {
+  scaleControlSmallerElement.addEventListener('click', decreaseScale);
+  scaleControlBiggerElement.addEventListener('click', increaseScale);
   document.addEventListener('keydown', keydownEscapeHandler);
   uploadCancel.addEventListener('click', clickHandler);
   uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
   bodyElement.classList.add('modal-open');
+  showScaleValue();
 });
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
@@ -78,3 +112,4 @@ uploadForm.addEventListener('submit', (evt) => {
     clickHandler();
   }
 });
+
