@@ -9,6 +9,7 @@ const textDescriptionElement = uploadForm.querySelector('.text__description');
 const scaleControlSmallerElement = document.querySelector('.scale__control--smaller');
 const scaleControlBiggerElement = document.querySelector('.scale__control--bigger');
 const scaleControlValueElement = document.querySelector('.scale__control--value');
+const imgUploadPreviewElement = document.querySelector('.img-upload__preview').querySelector('img');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -22,21 +23,22 @@ const SCALE_STEP = 25;
 const SCALE_DEFAULT = 100;
 
 let scaleValue = SCALE_DEFAULT;
-const showScaleValue = () => {
+const applyScaleValue = () => {
   scaleControlValueElement.value = `${scaleValue}%`;
+  imgUploadPreviewElement.style.transform = `scale(${scaleValue / 100})`;
 };
 
 const decreaseScale = () => {
   if (scaleValue >= SCALE_MIN + SCALE_STEP) {
     scaleValue -= SCALE_STEP;
-    showScaleValue();
+    applyScaleValue();
   }
 };
 
 const increaseScale = () => {
   if (scaleValue <= SCALE_MAX - SCALE_STEP) {
     scaleValue += SCALE_STEP;
-    showScaleValue();
+    applyScaleValue();
   }
 };
 
@@ -46,7 +48,7 @@ const cleanForm = () => {
   textHashtagsElement.value = '';
   textDescriptionElement.value = '';
   scaleValue = SCALE_DEFAULT;
-  showScaleValue();
+  applyScaleValue();
   pristine.reset();
 };
 
@@ -76,7 +78,7 @@ uploadFile.addEventListener('change', () => {
   uploadCancel.addEventListener('click', clickHandler);
   uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
   bodyElement.classList.add('modal-open');
-  showScaleValue();
+  applyScaleValue();
 });
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
@@ -112,4 +114,6 @@ uploadForm.addEventListener('submit', (evt) => {
     clickHandler();
   }
 });
+
+//слайдер
 
