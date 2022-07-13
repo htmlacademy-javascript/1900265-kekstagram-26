@@ -71,16 +71,6 @@ const clickHandler = () => {
   cleanForm();
 };
 
-uploadFile.addEventListener('change', () => {
-  scaleControlSmallerElement.addEventListener('click', decreaseScale);
-  scaleControlBiggerElement.addEventListener('click', increaseScale);
-  document.addEventListener('keydown', keydownEscapeHandler);
-  uploadCancel.addEventListener('click', clickHandler);
-  uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
-  bodyElement.classList.add('modal-open');
-  applyScaleValue();
-});
-
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
 
@@ -117,54 +107,113 @@ uploadForm.addEventListener('submit', (evt) => {
 
 //слайдер
 
-/*
-2.2. Наложение эффекта на изображение:
-1/ По умолчанию должен быть выбран эффект «Оригинал».
-
-2/  На изображение может накладываться только один эффект.
-
-3/  При смене эффекта, выбором одного из значений среди радиокнопок .effects__radio,
-добавить картинке внутри .img-upload__preview CSS-класс, соответствующий эффекту.
-Например, если выбран эффект .effect-chrome, изображению нужно добавить
-класс effects__preview--chrome.
-
-4/  Интенсивность эффекта регулируется перемещением ползунка в слайдере.
-Слайдер реализуется сторонней библиотекой для реализации слайдеров noUiSlider.
-Уровень эффекта записывается в поле .effect-level__value.
-ри изменении уровня интенсивности эффекта (предоставляется API слайдера),
-CSS-стили картинки внутри .img-upload__preview обновляются следующим образом:
-  - Для эффекта «Хром» — filter: grayscale(0..1) с шагом 0.1;
-  - Для эффекта «Сепия» — filter: sepia(0..1) с шагом 0.1;
-  - Для эффекта «Марвин» — filter: invert(0..100%) с шагом 1%;
-  - Для эффекта «Фобос» — filter: blur(0..3px) с шагом 0.1px;
-  - Для эффекта «Зной» — filter: brightness(1..3) с шагом 0.1;
-  - Для эффекта «Оригинал» CSS-стили filter удаляются.
-
-5/ При выборе эффекта «Оригинал» слайдер скрывается.
-
-6/ При переключении эффектов, уровень насыщенности сбрасывается до начального значения (100%):
-слайдер, CSS-стиль изображения и значение поля должны обновляться.
-
-7/  Кроме визуального применения эффекта необходимо записывать значение
-в скрытое поле для дальнейшей отправки на сервер.
-
-8/ при переключении фильтра, уровень эффекта должен сразу сбрасываться до начального состояния,
-т. е. логика по определению уровня насыщенности должна срабатывать не только при «перемещении» слайдера,
-но и при переключении фильтров.
-*/
-
 const sliderElement = document.querySelector('.effect-level__slider');
+const effectLevelValue = document.querySelector('.effect-level__value');
 const effectsRadioList = document.querySelectorAll('.effects__radio');
 const effectsListElement = document.querySelector('.effects__list');
-
-noUiSlider.create(sliderElement, {
-  range: {
-    min: 0,
-    max: 1,
+const EFFECT_ORIGINAL = 'none';
+const SLIDER_OPTIONS = {
+  [EFFECT_ORIGINAL]: {
+    range: {
+      min: 0,
+      max: 100,
+    },
+    start: 100,
+    connect: 'lower',
+    format: {
+      to: function (value) {
+        if (Number.isInteger(value)) {
+          return value.toFixed(0);
+        }
+        return value.toFixed(1);
+      },
+      from: (value) => value,
+    },
   },
-  start: 1,
-  step: 0.1,
-  connect: 'lower',
+  'chrome': {
+    range: {
+      min: 0,
+      max: 1,
+    },
+    start: 1,
+    step: 0.1,
+  },
+  'sepia': {
+    range: {
+      min: 0,
+      max: 1,
+    },
+    start: 1,
+    step: 0.1,
+    format: {
+      to: function (value) {
+        if (Number.isInteger(value)) {
+          return value.toFixed(0);
+        }
+        return value.toFixed(1);
+      },
+      from: (value) => value,
+    },
+  },
+  'marvin': {
+    range: {
+      min: 0,
+      max: 100,
+    },
+    start: 100,
+    step: 1,
+  },
+  'phobos': {
+    range: {
+      min: 0,
+      max: 3,
+    },
+    start: 3,
+    step: 0.1,
+  },
+  'heat': {
+    range: {
+      min: 1,
+      max: 3,
+    },
+    start: 3,
+    step: 0.1,
+  },
+};
+
+const EFFECT_STYLE = {
+  [EFFECT_ORIGINAL]: 'none',
+  'chrome': 'grayscale',
+  'sepia': 'sepia',
+  'marvin': 'invert',
+  'phobos': 'blur',
+  'heat': 'brightness',
+};
+
+const EFFECT_MEASURE = {
+  [EFFECT_ORIGINAL]: '',
+  'chrome': '',
+  'sepia': '',
+  'marvin': '%',
+  'phobos': 'px',
+  'heat': '',
+};
+
+noUiSlider.create(sliderElement, SLIDER_OPTIONS[EFFECT_ORIGINAL]);
+sliderElement.setAttribute('disabled', true);
+let currentEffect = EFFECT_ORIGINAL;
+
+const updatePreviewStyle = () => {
+  if (currentEffect === EFFECT_ORIGINAL) {
+    imgUploadPreviewElement.style.filter = 'none';
+  } else {
+    imgUploadPreviewElement.style.filter = `${EFFECT_STYLE[currentEffect]}(${effectLevelValue.value}${EFFECT_MEASURE[currentEffect]})`;
+  }
+};
+
+sliderElement.noUiSlider.on('update', () => {
+  effectLevelValue.value = sliderElement.noUiSlider.get();
+  updatePreviewStyle();
 });
 
 const getCurrentEffect = () => {
@@ -183,18 +232,22 @@ const resetAllEffects = () => {
       imgUploadPreviewElement.classList.remove(item);
     }
   });
+  imgUploadPreviewElement.style.filter = 'none';
 };
 
-const EFFECT_ORIGINAL = 'none';
-
 const setupEffect = (effect) => {
-  if (effect !== EFFECT_ORIGINAL) {
+  if (effect === EFFECT_ORIGINAL) {
+    sliderElement.setAttribute('disabled', true);
+  } else {
+    sliderElement.removeAttribute('disabled');
     imgUploadPreviewElement.classList.add(`effects__preview--${effect}`);
   }
+  sliderElement.noUiSlider.updateOptions(SLIDER_OPTIONS[effect]);
+  updatePreviewStyle();
 };
 
 const applyEffect = () => {
-  const currentEffect = getCurrentEffect();
+  currentEffect = getCurrentEffect();
   resetAllEffects();
   setupEffect(currentEffect);
 };
@@ -205,4 +258,13 @@ effectsListElement.addEventListener('click', (evt) => {
   }
 });
 
-
+uploadFile.addEventListener('change', () => {
+  scaleControlSmallerElement.addEventListener('click', decreaseScale);
+  scaleControlBiggerElement.addEventListener('click', increaseScale);
+  document.addEventListener('keydown', keydownEscapeHandler);
+  uploadCancel.addEventListener('click', clickHandler);
+  uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
+  bodyElement.classList.add('modal-open');
+  applyScaleValue();
+  applyEffect(EFFECT_ORIGINAL);
+});
