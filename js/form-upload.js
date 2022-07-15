@@ -10,7 +10,7 @@ const textDescriptionElement = uploadForm.querySelector('.text__description');
 const scaleControlSmallerElement = document.querySelector('.scale__control--smaller');
 const scaleControlBiggerElement = document.querySelector('.scale__control--bigger');
 const scaleControlValueElement = document.querySelector('.scale__control--value');
-const imgUploadPreviewElement = document.querySelector('.img-upload__preview').querySelector('img');
+const imgUploadPreviewElement = document.querySelector('.img-upload__preview img');
 const submitButtonElement = document.querySelector('#upload-submit');
 const effectNoneElement = document.querySelector('#effect-none');
 const templateSuccess = document.querySelector('#success').content.querySelector('.success');
@@ -47,7 +47,7 @@ const increaseScale = () => {
   }
 };
 
-const cleanForm = () => {
+const resetForm = () => {
   textHashtagsElement.value = '';
   textDescriptionElement.value = '';
   scaleValue = SCALE_DEFAULT;
@@ -58,15 +58,15 @@ const cleanForm = () => {
   applyEffect();
 };
 
-const closeForm = (clean) => {
+const closeForm = (isReset) => {
   uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   document.removeEventListener('keydown', keydownEscapeHandler);
   uploadCancel.removeEventListener('click', clickHandler);
   scaleControlSmallerElement.removeEventListener('click', decreaseScale);
   scaleControlBiggerElement.removeEventListener('click', increaseScale);
-  if (clean) {
-    cleanForm();
+  if (isReset) {
+    resetForm();
   }
 };
 
@@ -79,7 +79,7 @@ const keydownEscapeHandler = (evt) => {
   }
 };
 
-const clickHandler = (clean) => closeForm(true);
+const clickHandler = () => closeForm(true);
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
@@ -316,8 +316,10 @@ const resetAllEffects = () => {
 const setupEffect = (effect) => {
   if (effect === EFFECT_ORIGINAL) {
     sliderElement.setAttribute('disabled', true);
+    sliderElement.classList.add('hidden');
   } else {
     sliderElement.removeAttribute('disabled');
+    sliderElement.classList.remove('hidden');
     imgUploadPreviewElement.classList.add(`effects__preview--${effect}`);
   }
   sliderElement.noUiSlider.updateOptions(SLIDER_OPTIONS[effect]);
