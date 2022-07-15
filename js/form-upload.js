@@ -109,9 +109,22 @@ pristine.addValidator(textHashtagsElement, maxRenderHashtags, 'Можно исп
 const blockSubmitButton = () => {submitButtonElement.disabled = true;};
 const unblockSubmitButton = () => {submitButtonElement.disabled = false;};
 
+
 const showSuccess = () => {
   const elementSuccess = templateSuccess.cloneNode(true);
   elementSuccess.querySelector('.success__button').addEventListener('click', () => elementSuccess.remove());
+  const keydownEscapeSuccessHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      elementSuccess.remove();
+      document.removeEventListener('keydown', keydownEscapeSuccessHandler);
+    }
+  };
+  document.addEventListener('keydown', keydownEscapeSuccessHandler);
+  const clickSuccessHandler = (evt) => {
+    elementSuccess.remove();
+    document.removeEventListener('click', clickSuccessHandler);
+  };
+  document.addEventListener('click', clickSuccessHandler);
   bodyElement.appendChild(elementSuccess);
 };
 
@@ -130,6 +143,20 @@ const showError = () => {
     elementError.remove();
     showForm();
   });
+  const keydownEscapeErrorHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      elementError.remove();
+      showForm();
+      document.removeEventListener('keydown', keydownEscapeErrorHandler);
+    }
+  };
+  document.addEventListener('keydown', keydownEscapeErrorHandler);
+  const clickErrorHandler = (evt) => {
+    elementError.remove();
+    document.removeEventListener('click', clickErrorHandler);
+    showForm();
+  };
+  document.addEventListener('click', clickErrorHandler);
   bodyElement.appendChild(elementError);
 };
 
@@ -298,7 +325,6 @@ const setupEffect = (effect) => {
 };
 
 const applyEffect = () => {
-  console.log(`run applyEffect ${currentEffect}`);
   resetAllEffects();
   setupEffect(currentEffect);
 };

@@ -31,10 +31,8 @@ const sendData = (body, onSuccess, onError) => {
   )
     .then((response) => {
       if (response.ok) {
-        console.log('ok');
         onSuccess();
       } else {
-        console.log('not ok');
         onError();
       }
     });
