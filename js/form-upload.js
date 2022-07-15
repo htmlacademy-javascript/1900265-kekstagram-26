@@ -70,16 +70,18 @@ const closeForm = (isReset) => {
   }
 };
 
-const keydownEscapeHandler = (evt) => {
+function keydownEscapeHandler(evt) {
   if (isEscapeKey(evt)) {
     if (document.activeElement !== textHashtagsElement && document.activeElement !== textDescriptionElement) {
       evt.preventDefault();
       closeForm(true);
     }
   }
-};
+}
 
-const clickHandler = () => closeForm(true);
+function clickHandler() {
+  closeForm(true);
+}
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
@@ -120,7 +122,7 @@ const showSuccess = () => {
     }
   };
   document.addEventListener('keydown', keydownEscapeSuccessHandler);
-  const clickSuccessHandler = (evt) => {
+  const clickSuccessHandler = () => {
     elementSuccess.remove();
     document.removeEventListener('click', clickSuccessHandler);
   };
@@ -151,7 +153,7 @@ const showError = () => {
     }
   };
   document.addEventListener('keydown', keydownEscapeErrorHandler);
-  const clickErrorHandler = (evt) => {
+  const clickErrorHandler = () => {
     elementError.remove();
     document.removeEventListener('click', clickErrorHandler);
     showForm();
