@@ -9,7 +9,8 @@ const loadedCommentsCountElement = bigPicture.querySelector('.loaded-comments-co
 const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
 const bodyElement = document.querySelector('body');
 const cancelElement = bigPicture.querySelector('.big-picture__cancel');
-const commentLoaderElement = bigPicture.querySelector('.comments-loader');
+
+let renderMoreCommentsHandler;
 
 const keydownEscapeHandler = (evt) => {
   if (isEscapeKey(evt)) {
@@ -17,6 +18,7 @@ const keydownEscapeHandler = (evt) => {
     bigPicture.classList.add('hidden');
     bodyElement.classList.remove('modal-open');
     document.removeEventListener('keydown', keydownEscapeHandler);
+    commentsLoaderElement.removeEventListener('click', renderMoreCommentsHandler);
   }
 };
 
@@ -24,6 +26,7 @@ const clickHandler = () => {
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   cancelElement.removeEventListener('click', clickHandler);
+  commentsLoaderElement.removeEventListener('click', renderMoreCommentsHandler);
 };
 
 const COMMENTS_LIMIT = 5;
@@ -66,7 +69,8 @@ const renderBigPicture = (url, likes, comments, description) => {
   bodyElement.classList.add('modal-open');
   document.addEventListener('keydown', keydownEscapeHandler);
   cancelElement.addEventListener('click', clickHandler);
-  commentLoaderElement.addEventListener('click', () => renderMoreComments(comments));
+  renderMoreCommentsHandler = () => renderMoreComments(comments);
+  commentsLoaderElement.addEventListener('click', renderMoreCommentsHandler);
 };
 
 export {renderBigPicture};

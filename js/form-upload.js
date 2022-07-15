@@ -1,4 +1,5 @@
 import {isEscapeKey} from './utils.js';
+import {sendData} from './api.js';
 
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadFile = uploadForm.querySelector('#upload-file');
@@ -10,6 +11,9 @@ const scaleControlSmallerElement = document.querySelector('.scale__control--smal
 const scaleControlBiggerElement = document.querySelector('.scale__control--bigger');
 const scaleControlValueElement = document.querySelector('.scale__control--value');
 const imgUploadPreviewElement = document.querySelector('.img-upload__preview').querySelector('img');
+const submitButtonElement = document.querySelector('#upload-submit');
+const successElement = document.querySelector('#success');
+const errorElement = document.querySelector('#error');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -96,13 +100,35 @@ pristine.addValidator(textHashtagsElement, validateHashtag, 'ХэшТэг нач
 pristine.addValidator(textHashtagsElement, noRepeatHashtags, 'ХэшТэги не должны повторяться.');
 pristine.addValidator(textHashtagsElement, maxRenderHashtags, 'Можно использовать не более 5 ХэшТэгов.');
 
+const blockSubmitButton = () => {submitButtonElement.disabled = true;};
+const unblockSubmitButton = () => {submitButtonElement.disabled = false;};
+
+const showSuccess = () => {
+
+};
+
+const showError = () => {
+
+};
+
+
 uploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
   const isValid = pristine.validate();
   if (isValid) {
-    clickHandler();
-  }
+    blockSubmitButton();
+    sendData(
+      new FormData(evt.target),
+      () => {
+        unblockSubmitButton();
+        showSuccess();
+      },
+      () => {
+        unblockSubmitButton();
+        showError();
+      },
+    );
 });
 
 //слайдер
