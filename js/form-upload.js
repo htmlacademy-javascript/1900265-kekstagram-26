@@ -12,8 +12,9 @@ const scaleControlBiggerElement = document.querySelector('.scale__control--bigge
 const scaleControlValueElement = document.querySelector('.scale__control--value');
 const imgUploadPreviewElement = document.querySelector('.img-upload__preview').querySelector('img');
 const submitButtonElement = document.querySelector('#upload-submit');
-const successElement = document.querySelector('#success');
-const errorElement = document.querySelector('#error');
+const effectNoneElement = document.querySelector('#effect-none');
+const templateSuccess = document.querySelector('#success').content.querySelector('.success');
+const templateError = document.querySelector('#error').content.querySelector('.error');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -47,33 +48,38 @@ const increaseScale = () => {
 };
 
 const cleanForm = () => {
-  scaleControlSmallerElement.removeEventListener('click', decreaseScale);
-  scaleControlBiggerElement.removeEventListener('click', increaseScale);
   textHashtagsElement.value = '';
   textDescriptionElement.value = '';
   scaleValue = SCALE_DEFAULT;
   applyScaleValue();
   pristine.reset();
+  effectNoneElement.checked = true;
+  currentEffect = EFFECT_ORIGINAL;
+  applyEffect();
+};
+
+const closeForm = (clean) => {
+  uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
+  bodyElement.classList.remove('modal-open');
+  document.removeEventListener('keydown', keydownEscapeHandler);
+  uploadCancel.removeEventListener('click', clickHandler);
+  scaleControlSmallerElement.removeEventListener('click', decreaseScale);
+  scaleControlBiggerElement.removeEventListener('click', increaseScale);
+  if (clean) {
+    cleanForm();
+  }
 };
 
 const keydownEscapeHandler = (evt) => {
   if (isEscapeKey(evt)) {
     if (document.activeElement !== textHashtagsElement && document.activeElement !== textDescriptionElement) {
       evt.preventDefault();
-      uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
-      bodyElement.classList.remove('modal-open');
-      document.removeEventListener('keydown', keydownEscapeHandler);
-      cleanForm();
+      closeForm(true);
     }
   }
 };
 
-const clickHandler = () => {
-  uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
-  bodyElement.classList.remove('modal-open');
-  uploadCancel.removeEventListener('click', clickHandler);
-  cleanForm();
-};
+const clickHandler = (clean) => closeForm(true);
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
@@ -104,11 +110,27 @@ const blockSubmitButton = () => {submitButtonElement.disabled = true;};
 const unblockSubmitButton = () => {submitButtonElement.disabled = false;};
 
 const showSuccess = () => {
+  const elementSuccess = templateSuccess.cloneNode(true);
+  elementSuccess.querySelector('.success__button').addEventListener('click', () => elementSuccess.remove());
+  bodyElement.appendChild(elementSuccess);
+};
 
+const showForm = () => {
+  scaleControlSmallerElement.addEventListener('click', decreaseScale);
+  scaleControlBiggerElement.addEventListener('click', increaseScale);
+  document.addEventListener('keydown', keydownEscapeHandler);
+  uploadCancel.addEventListener('click', clickHandler);
+  uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
+  bodyElement.classList.add('modal-open');
 };
 
 const showError = () => {
-
+  const elementError = templateError.cloneNode(true);
+  elementError.querySelector('.error__button').addEventListener('click', () => {
+    elementError.remove();
+    showForm();
+  });
+  bodyElement.appendChild(elementError);
 };
 
 
@@ -122,13 +144,16 @@ uploadForm.addEventListener('submit', (evt) => {
       new FormData(evt.target),
       () => {
         unblockSubmitButton();
+        closeForm(true);
         showSuccess();
       },
       () => {
         unblockSubmitButton();
+        closeForm(false);
         showError();
       },
     );
+  }
 });
 
 //слайдер
@@ -273,24 +298,21 @@ const setupEffect = (effect) => {
 };
 
 const applyEffect = () => {
-  currentEffect = getCurrentEffect();
+  console.log(`run applyEffect ${currentEffect}`);
   resetAllEffects();
   setupEffect(currentEffect);
 };
 
 effectsListElement.addEventListener('click', (evt) => {
   if (evt.target.nodeName === 'INPUT') {
+    currentEffect = getCurrentEffect();
     applyEffect();
   }
 });
 
 uploadFile.addEventListener('change', () => {
-  scaleControlSmallerElement.addEventListener('click', decreaseScale);
-  scaleControlBiggerElement.addEventListener('click', increaseScale);
-  document.addEventListener('keydown', keydownEscapeHandler);
-  uploadCancel.addEventListener('click', clickHandler);
-  uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
-  bodyElement.classList.add('modal-open');
+  showForm();
   applyScaleValue();
-  applyEffect(EFFECT_ORIGINAL);
+  currentEffect = EFFECT_ORIGINAL;
+  applyEffect();
 });
