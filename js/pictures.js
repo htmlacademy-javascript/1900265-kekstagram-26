@@ -1,5 +1,5 @@
-import {getCards} from './data.js';
 import {renderBigPicture} from './big-pictures.js';
+import {getData} from './api.js';
 
 const listPictures = document.querySelector('.pictures');
 const templatePicture = document.querySelector('#picture').content.querySelector('.picture');
@@ -11,10 +11,13 @@ const renderPictures = (pictures) => {
     elementPicture.querySelector('.picture__likes').textContent = likes;
     elementPicture.querySelector('.picture__img').src = url;
     elementPicture.querySelector('.picture__comments').textContent = comments.length;
-    elementPicture.addEventListener('click', () => renderBigPicture(url, likes, comments, description));
+    elementPicture.addEventListener('click', () => {
+      renderBigPicture(url, likes, comments, description);
+    }
+    );
     listPicturesFragment.appendChild(elementPicture);
   });
   listPictures.appendChild(listPicturesFragment);
 };
 
-renderPictures(getCards());
+getData(renderPictures);

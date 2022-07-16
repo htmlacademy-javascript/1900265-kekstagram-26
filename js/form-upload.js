@@ -1,4 +1,6 @@
 import {isEscapeKey} from './utils.js';
+import {sendData} from './api.js';
+import {applyOriginalEffect} from './slider.js';
 
 const uploadForm = document.querySelector('.img-upload__form');
 const uploadFile = uploadForm.querySelector('#upload-file');
@@ -9,7 +11,11 @@ const textDescriptionElement = uploadForm.querySelector('.text__description');
 const scaleControlSmallerElement = document.querySelector('.scale__control--smaller');
 const scaleControlBiggerElement = document.querySelector('.scale__control--bigger');
 const scaleControlValueElement = document.querySelector('.scale__control--value');
-const imgUploadPreviewElement = document.querySelector('.img-upload__preview').querySelector('img');
+const imgUploadPreviewElement = document.querySelector('.img-upload__preview img');
+const submitButtonElement = document.querySelector('#upload-submit');
+const effectNoneElement = document.querySelector('#effect-none');
+const templateSuccess = document.querySelector('#success').content.querySelector('.success');
+const templateError = document.querySelector('#error').content.querySelector('.error');
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -42,34 +48,40 @@ const increaseScale = () => {
   }
 };
 
-const cleanForm = () => {
-  scaleControlSmallerElement.removeEventListener('click', decreaseScale);
-  scaleControlBiggerElement.removeEventListener('click', increaseScale);
+const resetForm = () => {
   textHashtagsElement.value = '';
   textDescriptionElement.value = '';
   scaleValue = SCALE_DEFAULT;
   applyScaleValue();
   pristine.reset();
+  effectNoneElement.checked = true;
+  applyOriginalEffect();
 };
 
-const keydownEscapeHandler = (evt) => {
-  if (isEscapeKey(evt)) {
-    if (document.activeElement !== textHashtagsElement && document.activeElement !== textDescriptionElement) {
-      evt.preventDefault();
-      uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
-      bodyElement.classList.remove('modal-open');
-      document.removeEventListener('keydown', keydownEscapeHandler);
-      cleanForm();
-    }
+const closeForm = (isReset) => {
+  uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
+  bodyElement.classList.remove('modal-open');
+  document.removeEventListener('keydown', keydownEscapeHandler);
+  uploadCancel.removeEventListener('click', clickHandler);
+  scaleControlSmallerElement.removeEventListener('click', decreaseScale);
+  scaleControlBiggerElement.removeEventListener('click', increaseScale);
+  if (isReset) {
+    resetForm();
   }
 };
 
-const clickHandler = () => {
-  uploadForm.querySelector('.img-upload__overlay').classList.add('hidden');
-  bodyElement.classList.remove('modal-open');
-  uploadCancel.removeEventListener('click', clickHandler);
-  cleanForm();
-};
+function keydownEscapeHandler(evt) {
+  if (isEscapeKey(evt)) {
+    if (document.activeElement !== textHashtagsElement && document.activeElement !== textDescriptionElement) {
+      evt.preventDefault();
+      closeForm(true);
+    }
+  }
+}
+
+function clickHandler() {
+  closeForm(true);
+}
 
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
@@ -96,175 +108,85 @@ pristine.addValidator(textHashtagsElement, validateHashtag, 'ХэшТэг нач
 pristine.addValidator(textHashtagsElement, noRepeatHashtags, 'ХэшТэги не должны повторяться.');
 pristine.addValidator(textHashtagsElement, maxRenderHashtags, 'Можно использовать не более 5 ХэшТэгов.');
 
-uploadForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
+const blockSubmitButton = () => {submitButtonElement.disabled = true;};
+const unblockSubmitButton = () => {submitButtonElement.disabled = false;};
 
-  const isValid = pristine.validate();
-  if (isValid) {
-    clickHandler();
-  }
-});
 
-//слайдер
-
-const sliderElement = document.querySelector('.effect-level__slider');
-const effectLevelValue = document.querySelector('.effect-level__value');
-const effectsRadioList = document.querySelectorAll('.effects__radio');
-const effectsListElement = document.querySelector('.effects__list');
-const EFFECT_ORIGINAL = 'none';
-const SLIDER_OPTIONS = {
-  [EFFECT_ORIGINAL]: {
-    range: {
-      min: 0,
-      max: 100,
-    },
-    start: 100,
-    connect: 'lower',
-    format: {
-      to: function (value) {
-        if (Number.isInteger(value)) {
-          return value.toFixed(0);
-        }
-        return value.toFixed(1);
-      },
-      from: (value) => value,
-    },
-  },
-  'chrome': {
-    range: {
-      min: 0,
-      max: 1,
-    },
-    start: 1,
-    step: 0.1,
-  },
-  'sepia': {
-    range: {
-      min: 0,
-      max: 1,
-    },
-    start: 1,
-    step: 0.1,
-    format: {
-      to: function (value) {
-        if (Number.isInteger(value)) {
-          return value.toFixed(0);
-        }
-        return value.toFixed(1);
-      },
-      from: (value) => value,
-    },
-  },
-  'marvin': {
-    range: {
-      min: 0,
-      max: 100,
-    },
-    start: 100,
-    step: 1,
-  },
-  'phobos': {
-    range: {
-      min: 0,
-      max: 3,
-    },
-    start: 3,
-    step: 0.1,
-  },
-  'heat': {
-    range: {
-      min: 1,
-      max: 3,
-    },
-    start: 3,
-    step: 0.1,
-  },
-};
-
-const EFFECT_STYLE = {
-  [EFFECT_ORIGINAL]: 'none',
-  'chrome': 'grayscale',
-  'sepia': 'sepia',
-  'marvin': 'invert',
-  'phobos': 'blur',
-  'heat': 'brightness',
-};
-
-const EFFECT_MEASURE = {
-  [EFFECT_ORIGINAL]: '',
-  'chrome': '',
-  'sepia': '',
-  'marvin': '%',
-  'phobos': 'px',
-  'heat': '',
-};
-
-noUiSlider.create(sliderElement, SLIDER_OPTIONS[EFFECT_ORIGINAL]);
-sliderElement.setAttribute('disabled', true);
-let currentEffect = EFFECT_ORIGINAL;
-
-const updatePreviewStyle = () => {
-  if (currentEffect === EFFECT_ORIGINAL) {
-    imgUploadPreviewElement.style.filter = 'none';
-  } else {
-    imgUploadPreviewElement.style.filter = `${EFFECT_STYLE[currentEffect]}(${effectLevelValue.value}${EFFECT_MEASURE[currentEffect]})`;
-  }
-};
-
-sliderElement.noUiSlider.on('update', () => {
-  effectLevelValue.value = sliderElement.noUiSlider.get();
-  updatePreviewStyle();
-});
-
-const getCurrentEffect = () => {
-  let effect;
-  effectsRadioList.forEach((item) => {
-    if (item.checked === true) {
-      effect = item.value;
+const showSuccess = () => {
+  const elementSuccess = templateSuccess.cloneNode(true);
+  elementSuccess.querySelector('.success__button').addEventListener('click', () => elementSuccess.remove());
+  const keydownEscapeSuccessHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      elementSuccess.remove();
+      document.removeEventListener('keydown', keydownEscapeSuccessHandler);
     }
-  });
-  return effect;
+  };
+  document.addEventListener('keydown', keydownEscapeSuccessHandler);
+  const clickSuccessHandler = () => {
+    elementSuccess.remove();
+    document.removeEventListener('click', clickSuccessHandler);
+  };
+  document.addEventListener('click', clickSuccessHandler);
+  bodyElement.appendChild(elementSuccess);
 };
 
-const resetAllEffects = () => {
-  imgUploadPreviewElement.classList.forEach((item) => {
-    if (item.startsWith('effects__preview--')) {
-      imgUploadPreviewElement.classList.remove(item);
-    }
-  });
-  imgUploadPreviewElement.style.filter = 'none';
-};
-
-const setupEffect = (effect) => {
-  if (effect === EFFECT_ORIGINAL) {
-    sliderElement.setAttribute('disabled', true);
-  } else {
-    sliderElement.removeAttribute('disabled');
-    imgUploadPreviewElement.classList.add(`effects__preview--${effect}`);
-  }
-  sliderElement.noUiSlider.updateOptions(SLIDER_OPTIONS[effect]);
-  updatePreviewStyle();
-};
-
-const applyEffect = () => {
-  currentEffect = getCurrentEffect();
-  resetAllEffects();
-  setupEffect(currentEffect);
-};
-
-effectsListElement.addEventListener('click', (evt) => {
-  if (evt.target.nodeName === 'INPUT') {
-    applyEffect();
-  }
-});
-
-uploadFile.addEventListener('change', () => {
+const showForm = () => {
   scaleControlSmallerElement.addEventListener('click', decreaseScale);
   scaleControlBiggerElement.addEventListener('click', increaseScale);
   document.addEventListener('keydown', keydownEscapeHandler);
   uploadCancel.addEventListener('click', clickHandler);
   uploadForm.querySelector('.img-upload__overlay').classList.remove('hidden');
   bodyElement.classList.add('modal-open');
+};
+
+const showError = () => {
+  const elementError = templateError.cloneNode(true);
+  elementError.querySelector('.error__button').addEventListener('click', () => {
+    elementError.remove();
+    showForm();
+  });
+  const keydownEscapeErrorHandler = (evt) => {
+    if (isEscapeKey(evt)) {
+      elementError.remove();
+      showForm();
+      document.removeEventListener('keydown', keydownEscapeErrorHandler);
+    }
+  };
+  document.addEventListener('keydown', keydownEscapeErrorHandler);
+  const clickErrorHandler = () => {
+    elementError.remove();
+    document.removeEventListener('click', clickErrorHandler);
+    showForm();
+  };
+  document.addEventListener('click', clickErrorHandler);
+  bodyElement.appendChild(elementError);
+};
+
+
+uploadForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+
+  const isValid = pristine.validate();
+  if (isValid) {
+    blockSubmitButton();
+    sendData(
+      new FormData(evt.target),
+      () => {
+        unblockSubmitButton();
+        closeForm(true);
+        showSuccess();
+      },
+      () => {
+        unblockSubmitButton();
+        closeForm(false);
+        showError();
+      },
+    );
+  }
+});
+
+uploadFile.addEventListener('change', () => {
+  showForm();
   applyScaleValue();
-  applyEffect(EFFECT_ORIGINAL);
+  applyOriginalEffect();
 });
