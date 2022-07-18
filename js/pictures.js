@@ -1,5 +1,6 @@
 import {renderBigPicture} from './big-pictures.js';
 import {getData} from './api.js';
+import {showAlert} from './utils.js';
 
 const listPictures = document.querySelector('.pictures');
 const templatePicture = document.querySelector('#picture').content.querySelector('.picture');
@@ -20,4 +21,8 @@ const renderPictures = (pictures) => {
   listPictures.appendChild(listPicturesFragment);
 };
 
-getData(renderPictures);
+getData(
+  renderPictures,
+  () => showAlert('Ошибка соединения с сервером. Попробуйте ещё раз.'),
+);
+
