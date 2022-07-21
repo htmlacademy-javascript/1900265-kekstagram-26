@@ -69,5 +69,15 @@ const getRandomElements = (array, count) => {
   return array.slice(-count);
 };
 
+// Функция взята из интернета и доработана
+// Источник - https://www.freecodecamp.org/news/javascript-debounce-example
 
-export {getRandomPositiveInteger, getRandomElement, getRandomArrayId, isEscapeKey, showAlert, getRandomElements};
+const debounce = (callback, timeoutDelay) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+};
+
+export {getRandomPositiveInteger, getRandomElement, getRandomArrayId, isEscapeKey, showAlert, getRandomElements, debounce};

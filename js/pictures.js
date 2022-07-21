@@ -1,7 +1,6 @@
 import {renderBigPicture} from './big-pictures.js';
 import {getData} from './api.js';
-import {showAlert} from './utils.js';
-import {getRandomElements} from './utils.js';
+import {showAlert, getRandomElements, debounce} from './utils.js';
 
 const listPictures = document.querySelector('.pictures');
 const templatePicture = document.querySelector('#picture').content.querySelector('.picture');
@@ -31,28 +30,33 @@ const clearPictures = () => listPictures.querySelectorAll('.picture').forEach((i
 
 let defaultPictures;
 const COUNT = 10;
+const RERENDER_DELAY = 500;
 
 const clearActiveFilterButton = () => imgFiltersButtons.forEach((item) => item.classList.remove('img-filters__button--active'));
 
-filterDefaultElement.addEventListener('click', () => {
+const filterDefaultClick = () => {
   clearPictures();
   renderPictures(defaultPictures);
   clearActiveFilterButton();
   filterDefaultElement.classList.add('img-filters__button--active');
-});
+};
 
-filterRandomElement.addEventListener('click', () => {
+filterDefaultElement.addEventListener('click', debounce(filterDefaultClick, RERENDER_DELAY));
+
+const filterRandomClick = () => {
   const randomIndexes = getRandomElements(defaultPictures.map((item) => item.id), COUNT);
   const randomPictures = randomIndexes.map((id) => defaultPictures[id]);
   clearPictures();
   renderPictures(randomPictures);
   clearActiveFilterButton();
   filterRandomElement.classList.add('img-filters__button--active');
-});
+};
+
+filterRandomElement.addEventListener('click', debounce(filterRandomClick, RERENDER_DELAY));
 
 let sortedPictures;
 
-filterDiscussedElement.addEventListener('click', () => {
+const filterDiscussedClick = () => {
   if (!sortedPictures) {
     const sortedIndexes = defaultPictures
       .map((item) => ({id: item.id, commentCount: item.comments.length}))
@@ -63,7 +67,9 @@ filterDiscussedElement.addEventListener('click', () => {
   renderPictures(sortedPictures);
   clearActiveFilterButton();
   filterDiscussedElement.classList.add('img-filters__button--active');
-});
+};
+
+filterDiscussedElement.addEventListener('click', debounce(filterDiscussedClick, RERENDER_DELAY));
 
 const showFilters = () => {
   imgFilters.classList.remove('img-filters--inactive');
@@ -72,11 +78,9 @@ const showFilters = () => {
 
 getData(
   (pictures) => {
-    // console.dir(pictures);
     defaultPictures = pictures;
     showFilters();
     renderPictures(defaultPictures);
   },
   () => showAlert('Ошибка соединения с сервером. Попробуйте ещё раз.'),
 );
-
