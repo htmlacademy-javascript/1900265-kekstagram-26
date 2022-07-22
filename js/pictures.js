@@ -5,10 +5,14 @@ import {showAlert, getRandomElements, debounce} from './utils.js';
 const listPictures = document.querySelector('.pictures');
 const templatePicture = document.querySelector('#picture').content.querySelector('.picture');
 const imgFilters = document.querySelector('.img-filters');
-const imgFiltersButtons = document.querySelectorAll('.img-filters__button');
 const filterDefaultElement = document.querySelector('#filter-default');
 const filterRandomElement = document.querySelector('#filter-random');
 const filterDiscussedElement = document.querySelector('#filter-discussed');
+const imgFiltersForm = document.querySelector('.img-filters__form');
+let defaultPictures;
+let sortedPictures;
+const COUNT = 10;
+const RERENDER_DELAY = 500;
 
 const renderPictures = (pictures) => {
   const listPicturesFragment = document.createDocumentFragment();
@@ -28,48 +32,38 @@ const renderPictures = (pictures) => {
 
 const clearPictures = () => listPictures.querySelectorAll('.picture').forEach((item) => item.remove());
 
-let defaultPictures;
-const COUNT = 10;
-const RERENDER_DELAY = 500;
+const clearActiveFilterButton = () => imgFiltersForm.querySelector('.img-filters__button--active').classList.remove('img-filters__button--active');
 
-const clearActiveFilterButton = () => imgFiltersButtons.forEach((item) => item.classList.remove('img-filters__button--active'));
+const filterClick = (evt) => {
+  if (evt.target.nodeName === 'BUTTON') {
 
-const filterDefaultClick = () => {
-  clearPictures();
-  renderPictures(defaultPictures);
-  clearActiveFilterButton();
-  filterDefaultElement.classList.add('img-filters__button--active');
-};
-
-filterDefaultElement.addEventListener('click', debounce(filterDefaultClick, RERENDER_DELAY));
-
-const filterRandomClick = () => {
-  const randomIndexes = getRandomElements(defaultPictures.map((item) => item.id), COUNT);
-  const randomPictures = randomIndexes.map((id) => defaultPictures[id]);
-  clearPictures();
-  renderPictures(randomPictures);
-  clearActiveFilterButton();
-  filterRandomElement.classList.add('img-filters__button--active');
-};
-
-filterRandomElement.addEventListener('click', debounce(filterRandomClick, RERENDER_DELAY));
-
-let sortedPictures;
-
-const filterDiscussedClick = () => {
-  if (!sortedPictures) {
-    const sortedIndexes = defaultPictures
-      .map((item) => ({id: item.id, commentCount: item.comments.length}))
-      .sort((a, b) => b.commentCount - a.commentCount);
-    sortedPictures = sortedIndexes.map((item) => defaultPictures[item.id]);
+    clearPictures();
+    let pictures;
+    let filterElement;
+    if (evt.target.id === 'filter-default') {
+      pictures = defaultPictures;
+      filterElement = filterDefaultElement;
+    } else if (evt.target.id === 'filter-random') {
+      const randomIndexes = getRandomElements(defaultPictures.map((item) => item.id), COUNT);
+      pictures = randomIndexes.map((id) => defaultPictures[id]);
+      filterElement = filterRandomElement;
+    } else if (evt.target.id === 'filter-discussed') {
+      if (!sortedPictures) {
+        const sortedIndexes = defaultPictures
+          .map((item) => ({id: item.id, commentCount: item.comments.length}))
+          .sort((a, b) => b.commentCount - a.commentCount);
+        sortedPictures = sortedIndexes.map((item) => defaultPictures[item.id]);
+      }
+      pictures = sortedPictures;
+      filterElement = filterDiscussedElement;
+    }
+    renderPictures(pictures);
+    clearActiveFilterButton();
+    filterElement.classList.add('img-filters__button--active');
   }
-  clearPictures();
-  renderPictures(sortedPictures);
-  clearActiveFilterButton();
-  filterDiscussedElement.classList.add('img-filters__button--active');
 };
 
-filterDiscussedElement.addEventListener('click', debounce(filterDiscussedClick, RERENDER_DELAY));
+imgFiltersForm.addEventListener('click', debounce(filterClick, RERENDER_DELAY));
 
 const showFilters = () => {
   imgFilters.classList.remove('img-filters--inactive');

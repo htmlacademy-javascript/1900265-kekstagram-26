@@ -162,7 +162,6 @@ const showError = () => {
   bodyElement.appendChild(elementError);
 };
 
-
 uploadForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
 
