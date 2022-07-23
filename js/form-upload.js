@@ -184,8 +184,19 @@ uploadForm.addEventListener('submit', (evt) => {
   }
 });
 
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+const userUploadFile = () => {
+  const userFile = uploadFile.files[0];
+  const userFileName = userFile.name.toLowerCase();
+  const matches = FILE_TYPES.some((it) => userFileName.endsWith(it));
+  if (matches) {
+    imgUploadPreviewElement.src = URL.createObjectURL(userFile);
+  }
+};
+
 uploadFile.addEventListener('change', () => {
   showForm();
+  userUploadFile();
   applyScaleValue();
   applyOriginalEffect();
 });
