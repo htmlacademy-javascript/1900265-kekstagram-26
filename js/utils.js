@@ -55,4 +55,29 @@ const showAlert = (message) => {
   }, ALERT_SHOW_TIME);
 };
 
-export {getRandomPositiveInteger, getRandomElement, getRandomArrayId, isEscapeKey, showAlert};
+// основано на алгоритме Fisher–Yates shuffle
+
+const getRandomElements = (array, count) => {
+  let i = array.length;
+  while (--i > 0) {
+    const randomIndex = Math.floor(Math.random() * (i + 1));
+    [array[randomIndex], array[i]] = [array[i], array[randomIndex]];
+    if (i <= array.length - count) {
+      break;
+    }
+  }
+  return array.slice(-count);
+};
+
+// Функция взята из интернета и доработана
+// Источник - https://www.freecodecamp.org/news/javascript-debounce-example
+
+const debounce = (callback, timeoutDelay) => {
+  let timeoutId;
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+};
+
+export {getRandomPositiveInteger, getRandomElement, getRandomArrayId, isEscapeKey, showAlert, getRandomElements, debounce};
