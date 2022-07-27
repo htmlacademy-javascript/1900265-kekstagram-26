@@ -1,3 +1,4 @@
+const effectLevelElement = document.querySelector('.img-upload__effect-level');
 const sliderElement = document.querySelector('.effect-level__slider');
 const effectLevelValue = document.querySelector('.effect-level__value');
 const effectsRadioList = document.querySelectorAll('.effects__radio');
@@ -39,12 +40,7 @@ const SLIDER_OPTIONS = {
     start: 1,
     step: 0.1,
     format: {
-      to: function (value) {
-        if (Number.isInteger(value)) {
-          return value.toFixed(0);
-        }
-        return value.toFixed(1);
-      },
+      to: (value) => Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1),
       from: (value) => value,
     },
   },
@@ -92,9 +88,19 @@ const EFFECT_MEASURE = {
   'heat': '',
 };
 
-noUiSlider.create(sliderElement, SLIDER_OPTIONS[EFFECT_ORIGINAL]);
-sliderElement.setAttribute('disabled', true);
 let currentEffect = EFFECT_ORIGINAL;
+
+const disableSlider = () => {
+  sliderElement.setAttribute('disabled', true);
+  effectLevelElement.classList.add('hidden');
+};
+const enableSlider = () => {
+  sliderElement.removeAttribute('disabled');
+  effectLevelElement.classList.remove('hidden');
+};
+
+noUiSlider.create(sliderElement, SLIDER_OPTIONS[EFFECT_ORIGINAL]);
+disableSlider();
 
 const updatePreviewStyle = () => {
   if (currentEffect === EFFECT_ORIGINAL) {
@@ -130,11 +136,9 @@ const resetAllEffects = () => {
 
 const setupEffect = (effect) => {
   if (effect === EFFECT_ORIGINAL) {
-    sliderElement.setAttribute('disabled', true);
-    sliderElement.classList.add('hidden');
+    disableSlider();
   } else {
-    sliderElement.removeAttribute('disabled');
-    sliderElement.classList.remove('hidden');
+    enableSlider();
     imgUploadPreviewElement.classList.add(`effects__preview--${effect}`);
   }
   sliderElement.noUiSlider.updateOptions(SLIDER_OPTIONS[effect]);
