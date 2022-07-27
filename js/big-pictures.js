@@ -9,31 +9,31 @@ const loadedCommentsCountElement = bigPicture.querySelector('.loaded-comments-co
 const commentsLoaderElement = bigPicture.querySelector('.comments-loader');
 const bodyElement = document.querySelector('body');
 const cancelElement = bigPicture.querySelector('.big-picture__cancel');
+const listSocialComments = document.querySelector('.social__comments');
+const templateSocialComment = document.querySelector('.social__comment');
+const COMMENTS_LIMIT = 5;
 
 let renderMoreCommentsHandler;
+let commentOffset;
 
-const keydownEscapeHandler = (evt) => {
+function keydownEscapeHandler(evt) {
   if (isEscapeKey(evt)) {
     evt.preventDefault();
     bigPicture.classList.add('hidden');
     bodyElement.classList.remove('modal-open');
     document.removeEventListener('keydown', keydownEscapeHandler);
+    cancelElement.removeEventListener('click', clickHandler);
     commentsLoaderElement.removeEventListener('click', renderMoreCommentsHandler);
   }
-};
+}
 
-const clickHandler = () => {
+function clickHandler() {
   bigPicture.classList.add('hidden');
   bodyElement.classList.remove('modal-open');
   cancelElement.removeEventListener('click', clickHandler);
+  document.removeEventListener('keydown', keydownEscapeHandler);
   commentsLoaderElement.removeEventListener('click', renderMoreCommentsHandler);
-};
-
-const COMMENTS_LIMIT = 5;
-const listSocialComments = document.querySelector('.social__comments');
-const templateSocialComment = document.querySelector('.social__comment');
-
-let commentOffset;
+}
 
 const renderSocialComment = (socialComments) => {
   const listSocialCommentsFragment = document.createDocumentFragment();

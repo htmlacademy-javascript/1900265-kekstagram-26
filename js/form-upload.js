@@ -16,6 +16,15 @@ const submitButtonElement = document.querySelector('#upload-submit');
 const effectNoneElement = document.querySelector('#effect-none');
 const templateSuccess = document.querySelector('#success').content.querySelector('.success');
 const templateError = document.querySelector('#error').content.querySelector('.error');
+const SCALE_MIN = 25;
+const SCALE_MAX = 100;
+const SCALE_STEP = 25;
+const SCALE_DEFAULT = 100;
+const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
+const MAX_RENDER_HASHTAGS = 5;
+const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+let clickErrorHandler;
+let scaleValue = SCALE_DEFAULT;
 
 const pristine = new Pristine(uploadForm, {
   classTo: 'img-upload__field-wrapper',
@@ -23,12 +32,6 @@ const pristine = new Pristine(uploadForm, {
   errorTextClass: 'img-upload__error-text',
 });
 
-const SCALE_MIN = 25;
-const SCALE_MAX = 100;
-const SCALE_STEP = 25;
-const SCALE_DEFAULT = 100;
-
-let scaleValue = SCALE_DEFAULT;
 const applyScaleValue = () => {
   scaleControlValueElement.value = `${scaleValue}%`;
   imgUploadPreviewElement.style.transform = `scale(${scaleValue / 100})`;
@@ -83,49 +86,47 @@ function clickHandler() {
   closeForm(true);
 }
 
-const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
-const MAX_RENDER_HASHTAGS = 5;
-
 const validateHashtag = (value) => {
   const words = value.trim().split(' ');
   const isValid = value === '' || words.every((word) => HASHTAG_RE.test(word));
   return isValid;
 };
 
-const noRepeatHashtags = (value) => {
+const validateHashtagRepeats = (value) => {
   const words = value.trim().toLowerCase().split(' ');
   const isValid = value === '' || new Set(words).size === words.length;
   return isValid;
 };
 
-const maxRenderHashtags = (value) => {
+const validateHashtagCount = (value) => {
   const words = value.trim().split(' ');
   const isValid = value === '' || words.length <= MAX_RENDER_HASHTAGS;
   return isValid;
 };
 
 pristine.addValidator(textHashtagsElement, validateHashtag, 'ХэшТэг начинается с # и содержит не более 20 любых букв и цифр.');
-pristine.addValidator(textHashtagsElement, noRepeatHashtags, 'ХэшТэги не должны повторяться.');
-pristine.addValidator(textHashtagsElement, maxRenderHashtags, 'Можно использовать не более 5 ХэшТэгов.');
+pristine.addValidator(textHashtagsElement, validateHashtagRepeats, 'ХэшТэги не должны повторяться.');
+pristine.addValidator(textHashtagsElement, validateHashtagCount, 'Можно использовать не более 5 ХэшТэгов.');
 
 const blockSubmitButton = () => {submitButtonElement.disabled = true;};
 const unblockSubmitButton = () => {submitButtonElement.disabled = false;};
 
-
 const showSuccess = () => {
   const elementSuccess = templateSuccess.cloneNode(true);
   elementSuccess.querySelector('.success__button').addEventListener('click', () => elementSuccess.remove());
-  const keydownEscapeSuccessHandler = (evt) => {
+  function keydownEscapeSuccessHandler(evt) {
     if (isEscapeKey(evt)) {
       elementSuccess.remove();
       document.removeEventListener('keydown', keydownEscapeSuccessHandler);
+      document.removeEventListener('click', clickSuccessHandler);
     }
-  };
+  }
   document.addEventListener('keydown', keydownEscapeSuccessHandler);
-  const clickSuccessHandler = () => {
+  function clickSuccessHandler() {
     elementSuccess.remove();
     document.removeEventListener('click', clickSuccessHandler);
-  };
+    document.removeEventListener('keydown', keydownEscapeSuccessHandler);
+  }
   document.addEventListener('click', clickSuccessHandler);
   bodyElement.appendChild(elementSuccess);
 };
@@ -150,12 +151,14 @@ const showError = () => {
       elementError.remove();
       showForm();
       document.removeEventListener('keydown', keydownEscapeErrorHandler);
+      document.removeEventListener('click', clickErrorHandler);
     }
   };
   document.addEventListener('keydown', keydownEscapeErrorHandler);
-  const clickErrorHandler = () => {
+  clickErrorHandler = () => {
     elementError.remove();
     document.removeEventListener('click', clickErrorHandler);
+    document.removeEventListener('keydown', keydownEscapeErrorHandler);
     showForm();
   };
   document.addEventListener('click', clickErrorHandler);
@@ -184,7 +187,6 @@ uploadForm.addEventListener('submit', (evt) => {
   }
 });
 
-const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 const userUploadFile = () => {
   const userFile = uploadFile.files[0];
   const userFileName = userFile.name.toLowerCase();
@@ -199,4 +201,8 @@ uploadFile.addEventListener('change', () => {
   userUploadFile();
   applyScaleValue();
   applyOriginalEffect();
+});
+
+uploadFile.addEventListener('click', (evt) => {
+  evt.target.value = '';
 });
