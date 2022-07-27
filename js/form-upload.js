@@ -23,7 +23,6 @@ const SCALE_DEFAULT = 100;
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
-let clickErrorHandler;
 let scaleValue = SCALE_DEFAULT;
 
 const pristine = new Pristine(uploadForm, {
@@ -146,21 +145,21 @@ const showError = () => {
     elementError.remove();
     showForm();
   });
-  const keydownEscapeErrorHandler = (evt) => {
+  function keydownEscapeErrorHandler(evt) {
     if (isEscapeKey(evt)) {
       elementError.remove();
       showForm();
       document.removeEventListener('keydown', keydownEscapeErrorHandler);
       document.removeEventListener('click', clickErrorHandler);
     }
-  };
+  }
   document.addEventListener('keydown', keydownEscapeErrorHandler);
-  clickErrorHandler = () => {
+  function clickErrorHandler() {
     elementError.remove();
     document.removeEventListener('click', clickErrorHandler);
     document.removeEventListener('keydown', keydownEscapeErrorHandler);
     showForm();
-  };
+  }
   document.addEventListener('click', clickErrorHandler);
   bodyElement.appendChild(elementError);
 };
