@@ -12,7 +12,6 @@ const cancelElement = bigPicture.querySelector('.big-picture__cancel');
 const listSocialComments = document.querySelector('.social__comments');
 const templateSocialComment = document.querySelector('.social__comment');
 const COMMENTS_LIMIT = 5;
-
 let renderMoreCommentsHandler;
 let commentOffset;
 
