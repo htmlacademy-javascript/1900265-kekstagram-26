@@ -23,6 +23,7 @@ const SCALE_DEFAULT = 100;
 const HASHTAG_RE = /^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/;
 const MAX_RENDER_HASHTAGS = 5;
 const FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
 let scaleValue = SCALE_DEFAULT;
 
 const pristine = new Pristine(uploadForm, {

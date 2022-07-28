@@ -15,12 +15,7 @@ const SLIDER_OPTIONS = {
     start: 100,
     connect: 'lower',
     format: {
-      to: function (value) {
-        if (Number.isInteger(value)) {
-          return value.toFixed(0);
-        }
-        return value.toFixed(1);
-      },
+      to: (value) => Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1),
       from: (value) => value,
     },
   },

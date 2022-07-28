@@ -9,10 +9,11 @@ const filterDefaultElement = document.querySelector('#filter-default');
 const filterRandomElement = document.querySelector('#filter-random');
 const filterDiscussedElement = document.querySelector('#filter-discussed');
 const imgFiltersForm = document.querySelector('.img-filters__form');
-let defaultPictures;
-let sortedPictures;
 const COUNT = 10;
 const RERENDER_DELAY = 500;
+
+let defaultPictures;
+let sortedPictures;
 
 const renderPictures = (pictures) => {
   const listPicturesFragment = document.createDocumentFragment();
